@@ -5,8 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Reversi"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Grid Name="BoardGrid" Grid.Column="0">
+
+        </Grid>
+
+        <Border BorderThickness="1,0,0,0" Grid.Column="1"  BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}">
+            <StackPanel Orientation="Vertical" VerticalAlignment="Stretch">
+                <Label Name="InvalidMoveLabel" Background="Red" VerticalContentAlignment="Center" Visibility="Hidden"></Label>
+                <Label Name="PlayerTurnIndicatorLabel" Background="Black" Foreground="White" FontSize="24"
+                       VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
+                       BorderBrush="Black" BorderThickness="1">BLACK</Label>
+            </StackPanel>
+        </Border>
+
     </Grid>
 </Window>
