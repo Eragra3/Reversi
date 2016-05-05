@@ -21,8 +21,23 @@ namespace Reversi.CustomControls
     /// </summary>
     public partial class Tile : UserControl
     {
+        private TileStateEnum _state;
 
-        public TileStateEnum State { get; private set; }
+        public TileStateEnum State
+        {
+            get { return _state; }
+            set
+            {
+                if (value == TileStateEnum.Black)
+                {
+                    PutBlack();
+                }
+                else if (value == TileStateEnum.White)
+                {
+                    PutWhite();
+                }
+            }
+        }
 
         public int X;
 
@@ -32,19 +47,25 @@ namespace Reversi.CustomControls
         {
             InitializeComponent();
 
-            State = TileStateEnum.Empty;
+            _state = TileStateEnum.Empty;
         }
 
         public void PutBlack()
         {
-            State = TileStateEnum.Black;
+            _state = TileStateEnum.Black;
             Pawn.Fill = Brushes.Black;
         }
 
         public void PutWhite()
         {
-            State = TileStateEnum.White;
+            _state = TileStateEnum.White;
             Pawn.Fill = Brushes.White;
+        }
+
+        public void RemovePawn()
+        {
+            _state = TileStateEnum.Empty;
+            Pawn.Fill = Brushes.Transparent;
         }
 
         public void Flip()

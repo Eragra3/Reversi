@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Reversi.Logic
+namespace Reversi.Enums
 {
-    public static class MinMaxPlayer
+    public enum AIStrategies
     {
-
+        MostCapturedTiles
     }
 }

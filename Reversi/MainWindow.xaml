@@ -23,6 +23,26 @@
                 <Label Name="PlayerTurnIndicatorLabel" Background="Black" Foreground="White" FontSize="24"
                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
                        BorderBrush="Black" BorderThickness="1">BLACK</Label>
+                <ComboBox SelectionChanged="ChangedAIStrategy">
+                    <ComboBoxItem Content="MostCapturedTiles" IsSelected="True"></ComboBoxItem>
+                </ComboBox>
+                <Label Name="WinnerLabel"  Background="Green" Foreground="Black" FontSize="24"></Label>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"></ColumnDefinition>
+                        <ColumnDefinition Width="1*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"></RowDefinition>
+                        <RowDefinition Height="1*"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Column="0" HorizontalAlignment="Center">Black</Label>
+                    <Label Grid.Column="1" HorizontalAlignment="Center">White</Label>
+
+                    <Label Grid.Row="1" Grid.Column="0"  Name="BlackPointsLabel" HorizontalAlignment="Center" Visibility="Hidden">1</Label>
+                    <Label Grid.Row="1"  Grid.Column="1"  Name="WhitePointsLabel" HorizontalAlignment="Center" Visibility="Hidden">2</Label>
+                </Grid>
             </StackPanel>
         </Border>
 

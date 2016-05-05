@@ -13,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Reversi.Enums;
+using Reversi.Logic;
 
 namespace Reversi
 {
@@ -50,7 +52,20 @@ namespace Reversi
             }
         }
 
+        private bool _aiIsThinking;
+
+        private bool _gameHasEnded;
+
         private HashSet<Tile> _possibleMoves;
+
+        private AIStrategies _aiStrategy;
+
+        private MinMaxPlayer _minMaxWhitePlayer;
+        private MinMaxPlayer _minMaxBlackPlayer;
+
+        private int _whitePoints;
+
+        private int _blackPoints;
 
         public MainWindow()
         {
@@ -61,11 +76,18 @@ namespace Reversi
 
             DrawBoard();
 
-            BlackTurn = true;
+            RestartGame();
+
             PlaceInitialPawns();
 
             //todo
             ShowMoveHelpers();
+
+            _minMaxWhitePlayer = new MinMaxPlayer(BoardSize, TileStateEnum.White, _aiStrategy, 4);
+            _minMaxBlackPlayer = new MinMaxPlayer(BoardSize, TileStateEnum.Black, _aiStrategy, 4);
+            //_minMaxBlackPlayer = null;
+
+            AskAI();
         }
 
         private void DrawBoard()
@@ -93,11 +115,19 @@ namespace Reversi
                     tile.X = j;
                     tile.Y = i;
 
-                    tile.MouseUp += (sender, args) => PlaceStoneAt((Tile)sender);
+                    tile.MouseUp += (sender, args) => HandleMouseClick((Tile)sender);
 
                     _board[j][i] = tile;
                     BoardGrid.Children.Add(tile);
                 }
+            }
+        }
+
+        private void HandleMouseClick(Tile tile)
+        {
+            if (!_aiIsThinking && !_gameHasEnded)
+            {
+                PlacePawnAt(tile);
             }
         }
 
@@ -114,9 +144,80 @@ namespace Reversi
             UpdatePossibleMoves();
         }
 
-        private void PlaceStoneAt(Tile tile)
+        private void RestartGame()
         {
-            if (!(tile.State == Enums.TileStateEnum.Empty))
+            _blackPoints = 0;
+            _whitePoints = 0;
+            WinnerLabel.Visibility = Visibility.Hidden;
+            BlackTurn = true;
+
+            for (var i = 0; i < _board.Length; i++)
+            {
+                for (var j = 0; j < _board[i].Length; j++)
+                {
+                    _board[i][j].RemovePawn();
+                }
+            }
+        }
+
+        private void PlacePawnAt(PawnLightModel pawn)
+        {
+            var tile = _board[pawn.X][pawn.Y];
+            PlacePawnAt(tile);
+        }
+
+        private void EndGame()
+        {
+            _gameHasEnded = true;
+            FindWinner();
+        }
+
+        private void FindWinner()
+        {
+            _blackPoints = 0;
+            _whitePoints = 0;
+            for (var i = 0; i < _board.Length; i++)
+            {
+                for (var j = 0; j < _board[i].Length; j++)
+                {
+                    if (_board[i][j].State == TileStateEnum.Black)
+                    {
+                        _blackPoints++;
+                    }
+                    else if (_board[i][j].State == TileStateEnum.White)
+                    {
+                        _whitePoints++;
+                    }
+                }
+            }
+
+            if (_whitePoints == _blackPoints)
+            {
+                WinnerLabel.Foreground = Brushes.Blue;
+                WinnerLabel.Visibility = Visibility.Visible;
+                WinnerLabel.Content = "Tie";
+            }
+            else if (_whitePoints > _blackPoints)
+            {
+                WinnerLabel.Foreground = Brushes.White;
+                WinnerLabel.Visibility = Visibility.Visible;
+                WinnerLabel.Content = "White";
+            }
+            else
+            {
+                WinnerLabel.Foreground = Brushes.Black;
+                WinnerLabel.Visibility = Visibility.Visible;
+                WinnerLabel.Content = "Black";
+            }
+            BlackPointsLabel.Visibility = Visibility.Visible;
+            BlackPointsLabel.Content = _blackPoints;
+            WhitePointsLabel.Visibility = Visibility.Visible;
+            WhitePointsLabel.Content = _whitePoints;
+        }
+
+        private void PlacePawnAt(Tile tile)
+        {
+            if (tile.State != TileStateEnum.Empty)
             {
                 ShowInvalidMoveLabel("Must place pawn on empty tile");
                 return;
@@ -136,14 +237,62 @@ namespace Reversi
             {
                 tile.PutWhite();
             }
+
             FlipPawns(tile);
 
             BlackTurn = !BlackTurn;
 
             UpdatePossibleMoves();
 
+            if (_possibleMoves.Count == 0)
+            {
+                BlackTurn = !BlackTurn;
+                UpdatePossibleMoves();
+                if (_possibleMoves.Count == 0)
+                {
+                    EndGame();
+                    return;
+                }
+            }
+
             HideMoveHelpers();
             ShowMoveHelpers();
+
+            AskAI();
+        }
+
+        private void AskAI()
+        {
+            if (!BlackTurn && _minMaxWhitePlayer != null)
+            {
+                _aiIsThinking = true;
+                var t = Task.Factory.StartNew(() => _minMaxWhitePlayer.FindNextMove(_board));
+                t.ContinueWith(taskResult =>
+                {
+                    var move = taskResult.Result;
+
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        PlacePawnAt(move);
+                        _aiIsThinking = false;
+                    }));
+                });
+            }
+            else if (BlackTurn && _minMaxBlackPlayer != null)
+            {
+                _aiIsThinking = true;
+                var t = Task.Factory.StartNew(() => _minMaxBlackPlayer.FindNextMove(_board));
+                t.ContinueWith(taskResult =>
+                {
+                    var move = taskResult.Result;
+
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        PlacePawnAt(move);
+                        _aiIsThinking = false;
+                    }));
+                });
+            }
         }
 
         #region helpers
@@ -601,5 +750,21 @@ namespace Reversi
             }
         }
         #endregion
+
+        private void ChangedAIStrategy(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                var aiStrategyText = ((ComboBox)sender).Text;
+                if (string.IsNullOrEmpty(aiStrategyText))
+                    _aiStrategy = AIStrategies.MostCapturedTiles;
+                else
+                    _aiStrategy = (AIStrategies)Enum.Parse(typeof(AIStrategies), aiStrategyText);
+            }
+            catch (Exception)
+            {
+                _aiStrategy = AIStrategies.MostCapturedTiles;
+            }
+        }
     }
 }

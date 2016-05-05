@@ -71,8 +71,13 @@
     <Compile Include="CustomControls\Tile.xaml.cs">
       <DependentUpon>Tile.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Enums\AIStrategies.cs" />
     <Compile Include="Enums\TileStateEnum.cs" />
-    <Compile Include="Logic\GameLogic.cs" />
+    <Compile Include="Logic\PawnLightModel.cs" />
+    <Compile Include="Logic\MinMaxPlayer.cs" />
+    <Compile Include="Logic\Node.cs" />
+    <Compile Include="Logic\PotentialGameState.cs" />
+    <Compile Include="Logic\ReversiHelpers.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
