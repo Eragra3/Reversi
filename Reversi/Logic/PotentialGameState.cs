@@ -10,7 +10,7 @@ namespace Reversi.Logic
 {
     public class PotentialGameState
     {
-        public PawnLightModel[][] GameState;
+        public TileStateEnum[][] GameState;
 
         public PawnLightModel MoveMade;
 
@@ -22,7 +22,7 @@ namespace Reversi.Logic
         /// </summary>
         /// <param name="gameState"></param>
         /// <param name="moveMade"></param>
-        public PotentialGameState(PawnLightModel[][] gameState, PawnLightModel moveMade)
+        public PotentialGameState(TileStateEnum[][] gameState, PawnLightModel moveMade)
         {
             GameState = gameState;
             MoveMade = moveMade;

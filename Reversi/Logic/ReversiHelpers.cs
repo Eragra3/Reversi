@@ -17,7 +17,7 @@ namespace Reversi.Logic
         //    __possibleMovesCache = new List<PawnLightModel>();
         //}
 
-        public static PawnLightModel[] GetPossiblePawnPlacements(PawnLightModel[][] gameState, TileStateEnum playerColor)
+        public static PawnLightModel[] GetPossiblePawnPlacements(TileStateEnum[][] gameState, TileStateEnum playerColor)
         {
             var enemyPlayerColor = playerColor == TileStateEnum.Black ? TileStateEnum.White : TileStateEnum.Black;
 
@@ -26,9 +26,14 @@ namespace Reversi.Logic
             {
                 for (var j = 0; j < gameState[i].Length; j++)
                 {
-                    if (gameState[i][j].State == playerColor)
+                    if (gameState[i][j] == playerColor)
                     {
-                        currentPlayerTiles.Add(gameState[i][j]);
+                        currentPlayerTiles.Add(new PawnLightModel
+                        {
+                            State = gameState[i][j],
+                            X = i,
+                            Y = j
+                        });
                     }
                 }
             }
@@ -40,404 +45,555 @@ namespace Reversi.Logic
                 //W
                 if (tile.X - 2 >= 0)
                 {
-                    var currentTile = gameState[tile.X - 1][tile.Y];
+                    var curX = tile.X - 1;
+                    var curY = tile.Y;
+                    var currentTile = gameState[curX][curY];
+
                     var isTileInBetween = false;
-                    while (currentTile != null)
+                    while (curX - 1 >= 0)
                     {
-                        if (!isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;
-                        if (!isTileInBetween && currentTile.State == enemyPlayerColor)
+                        if (!isTileInBetween && currentTile == enemyPlayerColor)
                             isTileInBetween = true;
 
-                        if (isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                         {
-                            possibleMoves.Add(currentTile);
+                            possibleMoves.Add(new PawnLightModel
+                            {
+                                State = currentTile,
+                                X = curX,
+                                Y = curY
+                            });
                             break;
                         }
-                        if (isTileInBetween && currentTile.State == playerColor)
+                        if (isTileInBetween && currentTile == playerColor)
                         {
                             break;
                         }
 
-                        if (currentTile.X - 1 < 0) break;
-                        currentTile = gameState[currentTile.X - 1][currentTile.Y];
+                        curX--;
+                        currentTile = gameState[curX][curY];
                     }
                 }
                 //E
                 if (tile.X + 2 < gameState.Length)
                 {
-                    var currentTile = gameState[tile.X + 1][tile.Y];
+                    var curX = tile.X + 1;
+                    var curY = tile.Y;
+                    var currentTile = gameState[curX][curY];
+
                     var isTileInBetween = false;
-                    while (currentTile != null)
+                    while (curX < gameState.Length)
                     {
-                        if (!isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;
-                        if (!isTileInBetween && currentTile.State == enemyPlayerColor)
+                        if (!isTileInBetween && currentTile == enemyPlayerColor)
                             isTileInBetween = true;
 
-                        if (isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                         {
-                            possibleMoves.Add(currentTile);
+                            possibleMoves.Add(new PawnLightModel
+                            {
+                                State = currentTile,
+                                X = curX,
+                                Y = curY
+                            });
                             break;
                         }
-                        if (isTileInBetween && currentTile.State == playerColor)
+                        if (isTileInBetween && currentTile == playerColor)
                         {
                             break;
                         }
 
-                        if (currentTile.X + 1 >= gameState.Length) break;
-                        currentTile = gameState[currentTile.X + 1][currentTile.Y];
+                        curX++;
+                        currentTile = gameState[curX][curY];
                     }
                 }
                 //N
                 if (tile.Y - 2 >= 0)
                 {
-                    var currentTile = gameState[tile.X][tile.Y - 1];
+                    var curX = tile.X;
+                    var curY = tile.Y - 1;
+                    var currentTile = gameState[curX][curY];
+
                     var isTileInBetween = false;
-                    while (currentTile != null)
+                    while (curY >= 0)
                     {
-                        if (!isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;
-                        if (!isTileInBetween && currentTile.State == enemyPlayerColor)
+                        if (!isTileInBetween && currentTile == enemyPlayerColor)
                             isTileInBetween = true;
 
-                        if (isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                         {
-                            possibleMoves.Add(currentTile);
+                            possibleMoves.Add(new PawnLightModel
+                            {
+                                State = currentTile,
+                                X = curX,
+                                Y = curY
+                            });
                             break;
                         }
-                        if (isTileInBetween && currentTile.State == playerColor)
+                        if (isTileInBetween && currentTile == playerColor)
                         {
                             break;
                         }
 
-                        if (currentTile.Y - 1 < 0) break;
-                        currentTile = gameState[currentTile.X][currentTile.Y - 1];
+                        curY--;
+                        currentTile = gameState[curX][curY];
                     }
                 }
                 //S
                 if (tile.Y + 2 < gameState.Length)
                 {
-                    var currentTile = gameState[tile.X][tile.Y + 1];
+                    var curX = tile.X;
+                    var curY = tile.Y + 1;
+                    var currentTile = gameState[curX][curY];
+
                     var isTileInBetween = false;
-                    while (currentTile != null)
+                    while (curY < gameState.Length)
                     {
-                        if (!isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;
-                        if (!isTileInBetween && currentTile.State == enemyPlayerColor)
+                        if (!isTileInBetween && currentTile == enemyPlayerColor)
                             isTileInBetween = true;
 
-                        if (isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                         {
-                            possibleMoves.Add(currentTile);
+                            possibleMoves.Add(new PawnLightModel
+                            {
+                                State = currentTile,
+                                X = curX,
+                                Y = curY
+                            });
                             break;
                         }
-                        if (isTileInBetween && currentTile.State == playerColor)
+                        if (isTileInBetween && currentTile == playerColor)
                         {
                             break;
                         }
 
-                        if (currentTile.Y + 1 >= gameState.Length) break;
-                        currentTile = gameState[currentTile.X][currentTile.Y + 1];
+                        curY++;
+                        currentTile = gameState[curX][curY];
                     }
                 }
                 //NW
                 if (tile.X - 2 >= 0 && tile.Y - 2 >= 0)
                 {
-                    var currentTile = gameState[tile.X - 1][tile.Y - 1];
+                    var curX = tile.X - 1;
+                    var curY = tile.Y - 1;
+                    var currentTile = gameState[curX][curY];
+
                     var isTileInBetween = false;
-                    while (currentTile != null)
+                    while (curX >= 0 && curY >= 0)
                     {
-                        if (!isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;
-                        if (!isTileInBetween && currentTile.State == enemyPlayerColor)
+                        if (!isTileInBetween && currentTile == enemyPlayerColor)
                             isTileInBetween = true;
 
-                        if (isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                         {
-                            possibleMoves.Add(currentTile);
+                            possibleMoves.Add(new PawnLightModel
+                            {
+                                State = currentTile,
+                                X = curX,
+                                Y = curY
+                            });
                             break;
                         }
-                        if (isTileInBetween && currentTile.State == playerColor)
+                        if (isTileInBetween && currentTile == playerColor)
                         {
                             break;
                         }
 
-                        if (currentTile.X - 1 < 0 || currentTile.Y - 1 < 0) break;
-                        currentTile = gameState[currentTile.X - 1][currentTile.Y - 1];
+                        curX--;
+                        curY--;
+                        currentTile = gameState[curX][curY];
                     }
                 }
                 //NE
                 if (tile.X + 2 < gameState.Length && tile.Y - 2 >= 0)
                 {
-                    var currentTile = gameState[tile.X + 1][tile.Y - 1];
+                    var curX = tile.X + 1;
+                    var curY = tile.Y - 1;
+                    var currentTile = gameState[curX][curY];
+
                     var isTileInBetween = false;
-                    while (currentTile != null)
+                    while (curX < gameState.Length && curY >= 0)
                     {
-                        if (!isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;
-                        if (!isTileInBetween && currentTile.State == enemyPlayerColor)
+                        if (!isTileInBetween && currentTile == enemyPlayerColor)
                             isTileInBetween = true;
 
-                        if (isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                         {
-                            possibleMoves.Add(currentTile);
+                            possibleMoves.Add(new PawnLightModel
+                            {
+                                State = currentTile,
+                                X = curX,
+                                Y = curY
+                            });
                             break;
                         }
-                        if (isTileInBetween && currentTile.State == playerColor)
+                        if (isTileInBetween && currentTile == playerColor)
                         {
                             break;
                         }
 
-                        if (currentTile.X + 1 >= gameState.Length || currentTile.Y - 1 < 0) break;
-                        currentTile = gameState[currentTile.X + 1][currentTile.Y - 1];
+                        curX++;
+                        curY--;
+                        currentTile = gameState[curX][curY];
                     }
                 }
                 //SE
                 if (tile.X + 2 < gameState.Length && tile.Y + 2 < gameState.Length)
                 {
-                    var currentTile = gameState[tile.X + 1][tile.Y + 1];
+                    var curX = tile.X + 1;
+                    var curY = tile.Y + 1;
+                    var currentTile = gameState[curX][curY];
+
                     var isTileInBetween = false;
-                    while (currentTile != null)
+                    while (curX < gameState.Length && curY < gameState.Length)
                     {
-                        if (!isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;
-                        if (!isTileInBetween && currentTile.State == enemyPlayerColor)
+                        if (!isTileInBetween && currentTile == enemyPlayerColor)
                             isTileInBetween = true;
 
-                        if (isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                         {
-                            possibleMoves.Add(currentTile);
+                            possibleMoves.Add(new PawnLightModel
+                            {
+                                State = currentTile,
+                                X = curX,
+                                Y = curY
+                            });
                             break;
                         }
-                        if (isTileInBetween && currentTile.State == playerColor)
+                        if (isTileInBetween && currentTile == playerColor)
                         {
                             break;
                         }
 
-                        if (currentTile.X + 1 >= gameState.Length || currentTile.Y + 1 >= gameState.Length) break;
-                        currentTile = gameState[currentTile.X + 1][currentTile.Y + 1];
+                        curX++;
+                        curY++;
+                        currentTile = gameState[curX][curY];
                     }
                 }
                 //SW
                 if (tile.X - 2 >= 0 && tile.Y + 2 < gameState.Length)
                 {
-                    var currentTile = gameState[tile.X - 1][tile.Y + 1];
+                    var curX = tile.X - 1;
+                    var curY = tile.Y + 1;
+                    var currentTile = gameState[curX][curY];
+
                     var isTileInBetween = false;
-                    while (currentTile != null)
+                    while (curX >= 0 && curY < gameState.Length)
                     {
-                        if (!isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;
-                        if (!isTileInBetween && currentTile.State == enemyPlayerColor)
+                        if (!isTileInBetween && currentTile == enemyPlayerColor)
                             isTileInBetween = true;
 
-                        if (isTileInBetween && currentTile.State == Enums.TileStateEnum.Empty)
+                        if (isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                         {
-                            possibleMoves.Add(currentTile);
+                            possibleMoves.Add(new PawnLightModel
+                            {
+                                State = currentTile,
+                                X = curX,
+                                Y = curY
+                            });
                             break;
                         }
-                        if (isTileInBetween && currentTile.State == playerColor)
+                        if (isTileInBetween && currentTile == playerColor)
                         {
                             break;
                         }
 
-                        if (currentTile.X - 1 < 0 || currentTile.Y + 1 >= gameState.Length) break;
-                        currentTile = gameState[currentTile.X - 1][currentTile.Y + 1];
+                        curX--;
+                        curY++;
+                        currentTile = gameState[curX][curY];
                     }
                 }
             }
             return possibleMoves.ToArray();
         }
 
-        public static int PlacePawn(PawnLightModel[][] board, PawnLightModel pawnToPlace)
+        public static int PlacePawn(TileStateEnum[][] board, TileStateEnum pawnColor, int x, int y)
         {
-            board[pawnToPlace.X][pawnToPlace.Y] = pawnToPlace;
+            board[x][y] = pawnColor;
 
-            return FlipPawns(board, pawnToPlace);
+            return FlipPawns(board, pawnColor, x, y);
         }
 
-        private static int FlipPawns(PawnLightModel[][] board, PawnLightModel pawn)
+        private static int FlipPawns(TileStateEnum[][] board, TileStateEnum pawnColor, int pawnX, int pawnY)
         {
 
-            var currentPlayerColor = pawn.State;
+            var currentPlayerColor = pawnColor;
             var enemyPlayerColor = currentPlayerColor == TileStateEnum.Black ? Enums.TileStateEnum.White : Enums.TileStateEnum.Black;
 
             var capturedPawns = 0;
 
             //W
-            if (pawn.X - 2 >= 0)
+            if (pawnX - 2 >= 0)
             {
-                var currentTile = board[pawn.X - 1][pawn.Y];
+                var currentTile = board[pawnX - 1][pawnY];
+                var curX = pawnX - 1;
+                var curY = pawnY;
 
-                var lastTileInSeqence = currentTile;
-                while (lastTileInSeqence.State == enemyPlayerColor)
+                var lastTileInSequence = currentTile;
+                var lastX = pawnX;
+                var lastY = pawnY;
+
+                while (lastTileInSequence == enemyPlayerColor)
                 {
-                    if (lastTileInSeqence.X - 1 < 0) break;
-                    lastTileInSeqence = board[lastTileInSeqence.X - 1][lastTileInSeqence.Y];
+                    if (lastX - 1 < 0) break;
+                    lastX--;
+                    lastTileInSequence = board[lastX][lastY];
                 }
 
-                if (lastTileInSeqence.State == currentPlayerColor)
-                    while (currentTile != null && currentTile.State == enemyPlayerColor)
+                if (lastTileInSequence == currentPlayerColor)
+                    while (currentTile == enemyPlayerColor)
                     {
-                        currentTile.Flip();
+                        board[curX][curY] = currentTile == TileStateEnum.Black
+                            ? TileStateEnum.White
+                            : TileStateEnum.Black;
                         capturedPawns++;
 
-                        if (currentTile.X - 1 < 0) break;
-                        currentTile = board[currentTile.X - 1][currentTile.Y];
+                        if (curX - 1 < 0) break;
+                        curX--;
+                        currentTile = board[curX][curY];
                     }
             }
             //E
-            if (pawn.X + 2 < board.Length)
+            if (pawnX + 2 < board.Length)
             {
-                var currentTile = board[pawn.X + 1][pawn.Y];
+                var currentTile = board[pawnX + 1][pawnY];
+                var curX = pawnX + 1;
+                var curY = pawnY;
 
-                var lastTileInSeqence = currentTile;
-                while (lastTileInSeqence.State == enemyPlayerColor)
+                var lastTileInSequence = currentTile;
+                var lastX = pawnX;
+                var lastY = pawnY;
+                while (lastTileInSequence == enemyPlayerColor)
                 {
-                    if (lastTileInSeqence.X + 1 >= board.Length) break;
-                    lastTileInSeqence = board[lastTileInSeqence.X + 1][lastTileInSeqence.Y];
+                    if (lastX + 1 >= board.Length) break;
+                    lastX++;
+                    lastTileInSequence = board[lastX][lastY];
                 }
 
-                if (lastTileInSeqence.State == currentPlayerColor)
-                    while (currentTile != null && currentTile.State == enemyPlayerColor)
+                if (lastTileInSequence == currentPlayerColor)
+                    while (currentTile == enemyPlayerColor)
                     {
-                        currentTile.Flip();
+                        board[curX][curY] = currentTile == TileStateEnum.Black
+                            ? TileStateEnum.White
+                            : TileStateEnum.Black;
                         capturedPawns++;
 
-                        if (currentTile.X + 1 >= board.Length) break;
-                        currentTile = board[currentTile.X + 1][currentTile.Y];
+                        if (curX + 1 >= board.Length) break;
+
+                        curX++;
+                        currentTile = board[curX][curY];
                     }
             }
             //N
-            if (pawn.Y - 2 >= 0)
+            if (pawnY - 2 >= 0)
             {
-                var currentTile = board[pawn.X][pawn.Y - 1];
+                var currentTile = board[pawnX][pawnY - 1];
+                var curX = pawnX;
+                var curY = pawnY - 1;
 
-                var lastTileInSeqence = currentTile;
-                while (lastTileInSeqence.State == enemyPlayerColor)
+                var lastTileInSequence = currentTile;
+                var lastX = pawnX;
+                var lastY = pawnY;
+                while (lastTileInSequence == enemyPlayerColor)
                 {
-                    if (lastTileInSeqence.Y - 1 < 0) break;
-                    lastTileInSeqence = board[lastTileInSeqence.X][lastTileInSeqence.Y - 1];
+                    if (lastY - 1 < 0) break;
+                    lastY--;
+                    lastTileInSequence = board[lastX][lastY];
                 }
 
-                if (lastTileInSeqence.State == currentPlayerColor)
-                    while (currentTile != null && currentTile.State == enemyPlayerColor)
+                if (lastTileInSequence == currentPlayerColor)
+                    while (currentTile == enemyPlayerColor)
                     {
-                        currentTile.Flip();
+                        board[curX][curY] = currentTile == TileStateEnum.Black
+                            ? TileStateEnum.White
+                            : TileStateEnum.Black;
                         capturedPawns++;
 
-                        if (currentTile.Y - 1 < 0) break;
-                        currentTile = board[currentTile.X][currentTile.Y - 1];
+                        if (curY - 1 < 0) break;
+                        curY--;
+                        currentTile = board[curX][curY];
                     }
             }
             //S
-            if (pawn.Y + 2 < board.Length)
+            if (pawnY + 2 < board.Length)
             {
-                var currentTile = board[pawn.X][pawn.Y + 1];
+                var currentTile = board[pawnX][pawnY + 1];
+                var curX = pawnX;
+                var curY = pawnY + 1;
 
-                var lastTileInSeqence = currentTile;
-                while (lastTileInSeqence.State == enemyPlayerColor)
+                var lastTileInSequence = currentTile;
+                var lastX = pawnX;
+                var lastY = pawnY;
+                while (lastTileInSequence == enemyPlayerColor)
                 {
-                    if (lastTileInSeqence.Y + 1 >= board.Length) break;
-                    lastTileInSeqence = board[lastTileInSeqence.X][lastTileInSeqence.Y + 1];
+                    if (lastY + 1 >= board.Length) break;
+                    lastY++;
+                    lastTileInSequence = board[lastX][lastY];
                 }
 
-                if (lastTileInSeqence.State == currentPlayerColor)
-                    while (currentTile != null && currentTile.State == enemyPlayerColor)
+                if (lastTileInSequence == currentPlayerColor)
+                    while (currentTile == enemyPlayerColor)
                     {
-                        currentTile.Flip();
+                        board[curX][curY] = currentTile == TileStateEnum.Black
+                            ? TileStateEnum.White
+                            : TileStateEnum.Black;
                         capturedPawns++;
 
-                        if (currentTile.Y + 1 >= board.Length) break;
-                        currentTile = board[currentTile.X][currentTile.Y + 1];
+                        if (curY + 1 >= board.Length) break;
+
+                        curY++;
+                        currentTile = board[curX][curY];
                     }
             }
             //NW
-            if (pawn.X - 2 >= 0 && pawn.Y - 2 >= 0)
+            if (pawnX - 2 >= 0 && pawnY - 2 >= 0)
             {
-                var currentTile = board[pawn.X - 1][pawn.Y - 1];
+                var currentTile = board[pawnX - 1][pawnY - 1];
+                var curX = pawnX - 1;
+                var curY = pawnY - 1;
 
-                var lastTileInSeqence = currentTile;
-                while (lastTileInSeqence.State == enemyPlayerColor)
+                var lastTileInSequence = currentTile;
+                var lastX = pawnX;
+                var lastY = pawnY;
+                while (lastTileInSequence == enemyPlayerColor)
                 {
-                    if (lastTileInSeqence.X - 1 < 0 || lastTileInSeqence.Y - 1 < 0) break;
-                    lastTileInSeqence = board[lastTileInSeqence.X - 1][lastTileInSeqence.Y - 1];
+                    if (lastX - 1 < 0 || lastY - 1 < 0) break;
+                    lastX--;
+                    lastY--;
+                    lastTileInSequence = board[lastX][lastY];
                 }
 
-                if (lastTileInSeqence.State == currentPlayerColor)
-                    while (currentTile != null && currentTile.State == enemyPlayerColor)
+                if (lastTileInSequence == currentPlayerColor)
+                    while (currentTile == enemyPlayerColor)
                     {
-                        currentTile.Flip();
+                        board[curX][curY] = currentTile == TileStateEnum.Black
+                            ? TileStateEnum.White
+                            : TileStateEnum.Black;
                         capturedPawns++;
 
-                        if (currentTile.X - 1 < 0 || currentTile.Y - 1 < 0) break;
-                        currentTile = board[currentTile.X - 1][currentTile.Y - 1];
+                        if (curX - 1 < 0 || curY - 1 < 0) break;
+
+                        curX--;
+                        curY--;
+                        currentTile = board[curX][curY];
                     }
             }
             //NE
-            if (pawn.X + 2 < board.Length && pawn.Y - 2 >= 0)
+            if (pawnX + 2 < board.Length && pawnY - 2 >= 0)
             {
-                var currentTile = board[pawn.X + 1][pawn.Y - 1];
+                var currentTile = board[pawnX + 1][pawnY - 1];
+                var curX = pawnX + 1;
+                var curY = pawnY - 1;
 
-                var lastTileInSeqence = currentTile;
-                while (lastTileInSeqence.State == enemyPlayerColor)
+                var lastTileInSequence = currentTile;
+                var lastX = pawnX;
+                var lastY = pawnY;
+                while (lastTileInSequence == enemyPlayerColor)
                 {
-                    if (lastTileInSeqence.X + 1 >= board.Length || lastTileInSeqence.Y - 1 < 0) break;
-                    lastTileInSeqence = board[lastTileInSeqence.X + 1][lastTileInSeqence.Y - 1];
+                    if (lastX + 1 >= board.Length || lastY - 1 < 0) break;
+
+                    lastX++;
+                    lastY--;
+                    lastTileInSequence = board[lastX][lastY];
                 }
 
-                if (lastTileInSeqence.State == currentPlayerColor)
-                    while (currentTile != null && currentTile.State == enemyPlayerColor)
+                if (lastTileInSequence == currentPlayerColor)
+                    while (currentTile == enemyPlayerColor)
                     {
-                        currentTile.Flip();
+                        board[curX][curY] = currentTile == TileStateEnum.Black
+                            ? TileStateEnum.White
+                            : TileStateEnum.Black;
                         capturedPawns++;
 
-                        if (currentTile.X + 1 >= board.Length || currentTile.Y - 1 < 0) break;
-                        currentTile = board[currentTile.X + 1][currentTile.Y - 1];
+                        if (curX + 1 >= board.Length || curY - 1 < 0) break;
+
+                        curX++;
+                        curY--;
+                        currentTile = board[curX][curY];
                     }
             }
             //SE
-            if (pawn.X + 2 < board.Length && pawn.Y + 2 < board.Length)
+            if (pawnX + 2 < board.Length && pawnY + 2 < board.Length)
             {
-                var currentTile = board[pawn.X + 1][pawn.Y + 1];
+                var currentTile = board[pawnX + 1][pawnY + 1];
+                var curX = pawnX + 1;
+                var curY = pawnY + 1;
 
-                var lastTileInSeqence = currentTile;
-                while (lastTileInSeqence.State == enemyPlayerColor)
+                var lastTileInSequence = currentTile;
+                var lastX = pawnX;
+                var lastY = pawnY;
+                while (lastTileInSequence == enemyPlayerColor)
                 {
-                    if (lastTileInSeqence.X + 1 >= board.Length || lastTileInSeqence.Y + 1 >= board.Length) break;
-                    lastTileInSeqence = board[lastTileInSeqence.X + 1][lastTileInSeqence.Y + 1];
+                    if (lastX + 1 >= board.Length || lastY + 1 >= board.Length) break;
+
+                    lastX++;
+                    lastY++;
+                    lastTileInSequence = board[lastX][lastY];
                 }
 
-                if (lastTileInSeqence.State == currentPlayerColor)
-                    while (currentTile != null && currentTile.State == enemyPlayerColor)
+                if (lastTileInSequence == currentPlayerColor)
+                    while (currentTile == enemyPlayerColor)
                     {
-                        currentTile.Flip();
+                        board[curX][curY] = currentTile == TileStateEnum.Black
+                            ? TileStateEnum.White
+                            : TileStateEnum.Black;
                         capturedPawns++;
 
-                        if (currentTile.X + 1 >= board.Length || currentTile.Y + 1 >= board.Length) break;
-                        currentTile = board[currentTile.X + 1][currentTile.Y + 1];
+                        if (curX + 1 >= board.Length || curY + 1 >= board.Length) break;
+
+                        curX++;
+                        curY++;
+                        currentTile = board[curX][curY];
                     }
             }
             //SW
-            if (pawn.X - 2 >= 0 && pawn.Y + 2 < board.Length)
+            if (pawnX - 2 >= 0 && pawnY + 2 < board.Length)
             {
-                var currentTile = board[pawn.X - 1][pawn.Y + 1];
+                var currentTile = board[pawnX - 1][pawnY + 1];
+                var curX = pawnX - 1;
+                var curY = pawnY + 1;
 
-                var lastTileInSeqence = currentTile;
-                while (lastTileInSeqence.State == enemyPlayerColor)
+                var lastTileInSequence = currentTile;
+                var lastX = pawnX;
+                var lastY = pawnY;
+                while (lastTileInSequence == enemyPlayerColor)
                 {
-                    if (lastTileInSeqence.X - 1 < 0 || lastTileInSeqence.Y + 1 >= board.Length) break;
-                    lastTileInSeqence = board[lastTileInSeqence.X - 1][lastTileInSeqence.Y + 1];
+                    if (lastX - 1 < 0 || lastY + 1 >= board.Length) break;
+
+                    lastX--;
+                    lastY++;
+                    lastTileInSequence = board[lastX][lastY];
                 }
 
-                if (lastTileInSeqence.State == currentPlayerColor)
-                    while (currentTile != null && currentTile.State == enemyPlayerColor)
+                if (lastTileInSequence == currentPlayerColor)
+                    while (currentTile == enemyPlayerColor)
                     {
-                        currentTile.Flip();
+                        board[curX][curY] = currentTile == TileStateEnum.Black
+                            ? TileStateEnum.White
+                            : TileStateEnum.Black;
                         capturedPawns++;
 
-                        if (currentTile.X - 1 < 0 || currentTile.Y + 1 >= board.Length) break;
-                        currentTile = board[currentTile.X - 1][currentTile.Y + 1];
+                        if (curX - 1 < 0 || curY + 1 >= board.Length) break;
+
+                        curX--;
+                        curY++
+                            ;
+                        currentTile = board[curX][curY];
                     }
             }
 

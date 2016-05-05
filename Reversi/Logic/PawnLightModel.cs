@@ -8,6 +8,7 @@ using Reversi.Enums;
 
 namespace Reversi.Logic
 {
+    [Serializable]
     public class PawnLightModel
     {
         public int X;

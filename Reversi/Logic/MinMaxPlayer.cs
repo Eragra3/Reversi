@@ -10,7 +10,7 @@ namespace Reversi.Logic
 {
     public class MinMaxPlayer
     {
-        private PawnLightModel[][] _currentBoardState;
+        private TileStateEnum[][] _currentBoardState;
 
         private TileStateEnum _playerColor;
 
@@ -20,13 +20,13 @@ namespace Reversi.Logic
 
         public MinMaxPlayer(int boardSize, Enums.TileStateEnum playerColor, AIStrategies strategy, int searchDepth = 4)
         {
-            _currentBoardState = new PawnLightModel[boardSize][];
+            _currentBoardState = new TileStateEnum[boardSize][];
             for (var i = 0; i < _currentBoardState.Length; i++)
             {
-                _currentBoardState[i] = new PawnLightModel[boardSize];
+                _currentBoardState[i] = new TileStateEnum[boardSize];
                 for (var j = 0; j < _currentBoardState[i].Length; j++)
                 {
-                    _currentBoardState[i][j] = new PawnLightModel();
+                    _currentBoardState[i][j] = TileStateEnum.Empty;
                 }
             }
 
@@ -41,9 +41,7 @@ namespace Reversi.Logic
             {
                 for (var j = 0; j < _currentBoardState[i].Length; j++)
                 {
-                    _currentBoardState[i][j].X = gameState[i][j].X;
-                    _currentBoardState[i][j].Y = gameState[i][j].Y;
-                    _currentBoardState[i][j].State = gameState[i][j].State;
+                    _currentBoardState[i][j] = gameState[i][j].State;
                 }
             }
 
@@ -131,7 +129,7 @@ namespace Reversi.Logic
                 pawn.State = currentPlayerColor;
 
                 var gameStateClone = DeepCloneGameState(parent.Value.GameState);
-                var capturedTiles = ReversiHelpers.PlacePawn(gameStateClone, pawn);
+                var capturedTiles = ReversiHelpers.PlacePawn(gameStateClone, pawn.State, pawn.X, pawn.Y);
 
                 var pgs = new PotentialGameState(gameStateClone, pawn)
                 {
@@ -148,15 +146,15 @@ namespace Reversi.Logic
             }
         }
 
-        private PawnLightModel[][] DeepCloneGameState(PawnLightModel[][] gameState)
+        private TileStateEnum[][] DeepCloneGameState(TileStateEnum[][] gameState)
         {
-            var gameStateCopy = new PawnLightModel[gameState.Length][];
+            var gameStateCopy = new TileStateEnum[gameState.Length][];
             for (var i = 0; i < gameStateCopy.Length; i++)
             {
-                gameStateCopy[i] = new PawnLightModel[gameStateCopy.Length];
+                gameStateCopy[i] = new TileStateEnum[gameStateCopy.Length];
                 for (var j = 0; j < gameStateCopy[i].Length; j++)
                 {
-                    gameStateCopy[i][j] = gameState[i][j].Clone();
+                    gameStateCopy[i][j] = gameState[i][j];
                 }
             }
 
