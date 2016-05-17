@@ -8,7 +8,7 @@ using Reversi.Enums;
 
 namespace Reversi.Logic
 {
-    public class MinMaxPlayer
+    public class MinMaxPlayer : ReversiPlayer
     {
         private TileStateEnum[][] _currentBoardState;
 
@@ -35,7 +35,7 @@ namespace Reversi.Logic
             _currentStrategy = strategy;
         }
 
-        public PawnLightModel FindNextMove(Tile[][] gameState)
+        public override PawnLightModel? FindNextMove(Tile[][] gameState)
         {
             for (var i = 0; i < _currentBoardState.Length; i++)
             {
@@ -68,7 +68,7 @@ namespace Reversi.Logic
 
         private double GetSubTreeNiceness(Node<PotentialGameState> node, bool maximizingPlayer, AIStrategies currentStrategy)
         {
-            if (node.Children == null)
+            if (node.Children == null || !node.Children.Any())
             {
                 return node.Value.GetNiceness(currentStrategy);
             }
@@ -108,14 +108,20 @@ namespace Reversi.Logic
         /// <param name="parent">Parent node</param>
         /// <param name="remainingDepth">Nodes to be created beneath this node</param>
         /// <param name="currentPlayerColor"></param>
+        /// <param name="gameState"></param>
         /// <returns></returns>
         private void MakeGameSubTree(Node<PotentialGameState> parent, int remainingDepth, TileStateEnum currentPlayerColor, TileStateEnum[][] gameState)
         {
             var possiblePawnPlacements = ReversiHelpers.GetPossiblePawnPlacements(gameState, currentPlayerColor);
 
-            parent.Children = new Node<PotentialGameState>[possiblePawnPlacements.Length];
 
-            if (!possiblePawnPlacements.Any()) return;
+            if (!possiblePawnPlacements.Any())
+            {
+                parent.Children = new Node<PotentialGameState>[0];
+                return;
+            }
+
+            parent.Children = new Node<PotentialGameState>[possiblePawnPlacements.Length];
 
             remainingDepth--;
             var opponentPlayerColor = currentPlayerColor == TileStateEnum.Black ? TileStateEnum.White : TileStateEnum.Black;
@@ -141,21 +147,6 @@ namespace Reversi.Logic
                     MakeGameSubTree(child, remainingDepth, opponentPlayerColor, gameStateClone);
                 }
             }
-        }
-
-        private TileStateEnum[][] DeepCloneGameState(TileStateEnum[][] gameState)
-        {
-            var gameStateCopy = new TileStateEnum[gameState.Length][];
-            for (var i = 0; i < gameStateCopy.Length; i++)
-            {
-                gameStateCopy[i] = new TileStateEnum[gameStateCopy.Length];
-                for (var j = 0; j < gameStateCopy[i].Length; j++)
-                {
-                    gameStateCopy[i][j] = gameState[i][j];
-                }
-            }
-
-            return gameStateCopy;
         }
     }
 }

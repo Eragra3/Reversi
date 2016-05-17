@@ -50,7 +50,7 @@ namespace Reversi.Logic
                     var currentTile = gameState[curX][curY];
 
                     var isTileInBetween = false;
-                    while (curX - 1 >= 0)
+                    while (curX >= 0)
                     {
                         if (!isTileInBetween && currentTile == Enums.TileStateEnum.Empty)
                             break;

@@ -79,6 +79,7 @@
     <Compile Include="Logic\Node.cs" />
     <Compile Include="Logic\PotentialGameState.cs" />
     <Compile Include="Logic\ReversiHelpers.cs" />
+    <Compile Include="Logic\ReversiPlayer.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

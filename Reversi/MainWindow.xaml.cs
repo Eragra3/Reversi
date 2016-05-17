@@ -1,6 +1,8 @@
 ﻿using Reversi.CustomControls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,6 +70,12 @@ namespace Reversi
 
         private int _blackPoints;
 
+        private const string LogDirectory = @"C:\School\AI4\";
+        private readonly StreamWriter _logsWriter = new StreamWriter($"{LogDirectory}{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.txt");
+
+        private readonly Stopwatch gameStopwatch = new Stopwatch();
+        private int stepsCount;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -90,6 +98,8 @@ namespace Reversi
             //    e.MoveNext();
             //    PlacePawnAt(e.Current);
             //}
+
+            _logsWriter.AutoFlush = true;
         }
 
         private void DrawBoard()
@@ -173,6 +183,11 @@ namespace Reversi
 
         private void EndGame()
         {
+            _logsWriter.WriteLine($"Game ended");
+            _logsWriter.WriteLine($"{gameStopwatch.ElapsedMilliseconds};{stepsCount}");
+
+            gameStopwatch.Stop();
+
             _gameHasEnded = true;
             FindWinner();
         }
@@ -220,8 +235,11 @@ namespace Reversi
             WhitePointsLabel.Content = _whitePoints;
         }
 
-        private void PlacePawnAt(Tile tile)
+        private async void PlacePawnAt(Tile tile)
         {
+
+            stepsCount++;
+
             if (tile.State != TileStateEnum.Empty)
             {
                 ShowInvalidMoveLabel("Must place pawn on empty tile");
@@ -267,7 +285,10 @@ namespace Reversi
 
         private async void AskAI()
         {
-            if (!_useAi) return;
+            if (!_useAi || _aiIsThinking) return;
+            Debug.WriteLine(BlackTurn ? "Czorny" : "White");
+            var sw = new Stopwatch();
+            sw.Start();
 
             switch (_usedAlgorithm)
             {
@@ -278,10 +299,12 @@ namespace Reversi
                         _aiIsThinking = true;
                         var move = await Task.Factory.StartNew(() => _minMaxWhitePlayer.FindNextMove(_board));
 
+                        _logsWriter.WriteLine($"{sw.ElapsedMilliseconds};{_possibleMoves.Count}");
+
                         await Dispatcher.BeginInvoke(new Action(() =>
                         {
-                            PlacePawnAt(move);
                             _aiIsThinking = false;
+                            PlacePawnAt(move.Value);
                         }));
                     }
                     else if (BlackTurn && _minMaxBlackPlayer != null)
@@ -289,10 +312,12 @@ namespace Reversi
                         _aiIsThinking = true;
                         var move = await Task.Factory.StartNew(() => _minMaxBlackPlayer.FindNextMove(_board));
 
+                        _logsWriter.WriteLine($"{sw.ElapsedMilliseconds};{_possibleMoves.Count}");
+
                         await Dispatcher.BeginInvoke(new Action(() =>
                         {
-                            PlacePawnAt(move);
                             _aiIsThinking = false;
+                            PlacePawnAt(move.Value);
                         }));
                     }
 
@@ -310,7 +335,7 @@ namespace Reversi
         {
             _possibleMoves.Clear();
 
-            var currentPlayerTiles = new List<Tile>(BoardSize*BoardSize);
+            var currentPlayerTiles = new List<Tile>(BoardSize * BoardSize);
 
             for (int i = 0; i < _board.Length; i++)
             {
@@ -773,11 +798,11 @@ namespace Reversi
         {
             try
             {
-                var aiStrategyText = ((ComboBox) sender).Text;
+                var aiStrategyText = ((ComboBox)sender).Text;
                 if (string.IsNullOrEmpty(aiStrategyText))
                     _aiStrategy = AIStrategies.MostCapturedTiles;
                 else
-                    _aiStrategy = (AIStrategies) Enum.Parse(typeof(AIStrategies), aiStrategyText);
+                    _aiStrategy = (AIStrategies)Enum.Parse(typeof(AIStrategies), aiStrategyText);
             }
             catch (Exception)
             {
@@ -789,11 +814,11 @@ namespace Reversi
         {
             try
             {
-                var usedAlgorithmText = ((ComboBox) sender).Text;
+                var usedAlgorithmText = ((ComboBox)sender).Text;
                 if (string.IsNullOrEmpty(usedAlgorithmText))
                     _usedAlgorithm = AlgorithmsEnum.MinMax;
                 else
-                    _usedAlgorithm = (AlgorithmsEnum) Enum.Parse(typeof(AlgorithmsEnum), usedAlgorithmText);
+                    _usedAlgorithm = (AlgorithmsEnum)Enum.Parse(typeof(AlgorithmsEnum), usedAlgorithmText);
             }
             catch (Exception)
             {
@@ -804,6 +829,12 @@ namespace Reversi
         private void StartGameButtonClick(object sender, RoutedEventArgs e)
         {
             if (_aiIsThinking) return;
+
+            _logsWriter.WriteLine($"Starting algorithm");
+            _logsWriter.WriteLine($"{_usedAlgorithm};{_aiStrategy}");
+
+            gameStopwatch.Restart();
+            stepsCount = 0;
 
             _useAi = true;
             AskAI();
