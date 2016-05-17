@@ -73,6 +73,7 @@ namespace Reversi.Logic
                         }
 
                         curX--;
+                        if (curX < 0) break;
                         currentTile = gameState[curX][curY];
                     }
                 }
@@ -107,6 +108,7 @@ namespace Reversi.Logic
                         }
 
                         curX++;
+                        if (curX >= gameState.Length) break;
                         currentTile = gameState[curX][curY];
                     }
                 }
@@ -141,6 +143,7 @@ namespace Reversi.Logic
                         }
 
                         curY--;
+                        if (curY < 0) break;
                         currentTile = gameState[curX][curY];
                     }
                 }
@@ -175,6 +178,7 @@ namespace Reversi.Logic
                         }
 
                         curY++;
+                        if (curY >= gameState.Length) break;
                         currentTile = gameState[curX][curY];
                     }
                 }
@@ -210,6 +214,7 @@ namespace Reversi.Logic
 
                         curX--;
                         curY--;
+                        if (curX < 0 || curY < 0) break;
                         currentTile = gameState[curX][curY];
                     }
                 }
@@ -245,6 +250,7 @@ namespace Reversi.Logic
 
                         curX++;
                         curY--;
+                        if (curX >= gameState.Length || curY < 0) break;
                         currentTile = gameState[curX][curY];
                     }
                 }
@@ -280,6 +286,7 @@ namespace Reversi.Logic
 
                         curX++;
                         curY++;
+                        if (curX >= gameState.Length || curY >= gameState.Length) break;
                         currentTile = gameState[curX][curY];
                     }
                 }
@@ -315,6 +322,7 @@ namespace Reversi.Logic
 
                         curX--;
                         curY++;
+                        if (curX < 0 || curY >= gameState.Length) break;
                         currentTile = gameState[curX][curY];
                     }
                 }

@@ -10,8 +10,6 @@ namespace Reversi.Logic
 {
     public class PotentialGameState
     {
-        public TileStateEnum[][] GameState;
-
         public PawnLightModel MoveMade;
 
         public int CapturedTiles;
@@ -22,12 +20,14 @@ namespace Reversi.Logic
         /// </summary>
         /// <param name="gameState"></param>
         /// <param name="moveMade"></param>
-        public PotentialGameState(TileStateEnum[][] gameState, PawnLightModel moveMade)
+        public PotentialGameState(PawnLightModel moveMade)
         {
-            GameState = gameState;
             MoveMade = moveMade;
         }
 
+        /*
+         * this method cannot use GameState, it should be already disposed
+         */
         public double GetNiceness(AIStrategies strategy)
         {
             switch (strategy)

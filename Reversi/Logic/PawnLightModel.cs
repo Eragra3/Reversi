@@ -13,7 +13,7 @@ namespace Reversi.Logic
     {
         public int X;
         public int Y;
-        public Enums.TileStateEnum State;
+        public TileStateEnum State;
 
         public void Flip()
         {

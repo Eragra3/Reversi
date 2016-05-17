@@ -46,27 +46,24 @@ namespace Reversi.Logic
             }
 
             var gameStateClone = DeepCloneGameState(_currentBoardState);
-            var pgs = new PotentialGameState(gameStateClone, null);
 
-            var root = new Node<PotentialGameState>(null, pgs);
+            var root = new Node<PotentialGameState>(null);
 
-            MakeGameSubTree(root, _searchDepth, _playerColor);
+            MakeGameSubTree(root, _searchDepth, _playerColor, gameStateClone);
 
-            PotentialGameState bestPGS = null;
-            double nicestNiceness = double.NegativeInfinity;
+            PotentialGameState bestPgs = null;
+            var nicestNiceness = double.NegativeInfinity;
             foreach (var child in root.Children)
             {
                 var niceness = GetSubTreeNiceness(child, true, _currentStrategy);
 
-                if (niceness > nicestNiceness)
-                {
-                    nicestNiceness = niceness;
-                    bestPGS = child.Value;
-                }
+                if (!(niceness > nicestNiceness)) continue;
+                nicestNiceness = niceness;
+                bestPgs = child.Value;
             }
 
 
-            return bestPGS?.MoveMade;
+            return bestPgs?.MoveMade;
         }
 
         private double GetSubTreeNiceness(Node<PotentialGameState> node, bool maximizingPlayer, AIStrategies currentStrategy)
@@ -112,36 +109,36 @@ namespace Reversi.Logic
         /// <param name="remainingDepth">Nodes to be created beneath this node</param>
         /// <param name="currentPlayerColor"></param>
         /// <returns></returns>
-        private void MakeGameSubTree(Node<PotentialGameState> parent, int remainingDepth, TileStateEnum currentPlayerColor)
+        private void MakeGameSubTree(Node<PotentialGameState> parent, int remainingDepth, TileStateEnum currentPlayerColor, TileStateEnum[][] gameState)
         {
-            var possiblePawnPlacements = ReversiHelpers.GetPossiblePawnPlacements(parent.Value.GameState, currentPlayerColor);
-
-            if (possiblePawnPlacements == null || !possiblePawnPlacements.Any()) return;
+            var possiblePawnPlacements = ReversiHelpers.GetPossiblePawnPlacements(gameState, currentPlayerColor);
 
             parent.Children = new Node<PotentialGameState>[possiblePawnPlacements.Length];
 
+            if (!possiblePawnPlacements.Any()) return;
+
             remainingDepth--;
-            var opponentPlayerColor = currentPlayerColor == TileStateEnum.Black ? Enums.TileStateEnum.White : Enums.TileStateEnum.Black;
+            var opponentPlayerColor = currentPlayerColor == TileStateEnum.Black ? TileStateEnum.White : TileStateEnum.Black;
 
             for (var i = 0; i < parent.Children.Length; i++)
             {
                 var pawn = possiblePawnPlacements[i];
                 pawn.State = currentPlayerColor;
 
-                var gameStateClone = DeepCloneGameState(parent.Value.GameState);
+                var gameStateClone = DeepCloneGameState(gameState);
                 var capturedTiles = ReversiHelpers.PlacePawn(gameStateClone, pawn.State, pawn.X, pawn.Y);
 
-                var pgs = new PotentialGameState(gameStateClone, pawn)
+                var pgs = new PotentialGameState(pawn)
                 {
                     CapturedTiles = capturedTiles
                 };
 
-                var child = new Node<PotentialGameState>(parent, pgs);
+                var child = new Node<PotentialGameState>(pgs);
                 parent.Children[i] = child;
 
                 if (remainingDepth >= 0)
                 {
-                    MakeGameSubTree(child, remainingDepth, opponentPlayerColor);
+                    MakeGameSubTree(child, remainingDepth, opponentPlayerColor, gameStateClone);
                 }
             }
         }

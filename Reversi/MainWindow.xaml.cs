@@ -53,12 +53,13 @@ namespace Reversi
         }
 
         private bool _aiIsThinking;
-
+        private bool _useAi;
         private bool _gameHasEnded;
 
         private HashSet<Tile> _possibleMoves;
 
         private AIStrategies _aiStrategy;
+        private AlgorithmsEnum _usedAlgorithm;
 
         private MinMaxPlayer _minMaxWhitePlayer;
         private MinMaxPlayer _minMaxBlackPlayer;
@@ -73,21 +74,22 @@ namespace Reversi
 
             BoardSize = Configuration.BOARD_SIZE;
             _possibleMoves = new HashSet<Tile>();
+            _useAi = true;
 
             DrawBoard();
 
             RestartGame();
 
-            PlaceInitialPawns();
-
-            //todo
-            ShowMoveHelpers();
 
             _minMaxWhitePlayer = new MinMaxPlayer(BoardSize, TileStateEnum.White, _aiStrategy, 4);
             _minMaxBlackPlayer = new MinMaxPlayer(BoardSize, TileStateEnum.Black, _aiStrategy, 4);
-            //_minMaxBlackPlayer = null;
 
-            AskAI();
+            //for (int i = 0; i < 20; i++)
+            //{
+            //    var e = _possibleMoves.GetEnumerator();
+            //    e.MoveNext();
+            //    PlacePawnAt(e.Current);
+            //}
         }
 
         private void DrawBoard()
@@ -158,6 +160,9 @@ namespace Reversi
                     _board[i][j].RemovePawn();
                 }
             }
+
+            PlaceInitialPawns();
+            ShowMoveHelpers();
         }
 
         private void PlacePawnAt(PawnLightModel pawn)
@@ -255,52 +260,57 @@ namespace Reversi
                 }
             }
 
-            HideMoveHelpers();
             ShowMoveHelpers();
 
             AskAI();
         }
 
-        private void AskAI()
+        private async void AskAI()
         {
-            if (!BlackTurn && _minMaxWhitePlayer != null)
-            {
-                _aiIsThinking = true;
-                var t = Task.Factory.StartNew(() => _minMaxWhitePlayer.FindNextMove(_board));
-                t.ContinueWith(taskResult =>
-                {
-                    var move = taskResult.Result;
+            if (!_useAi) return;
 
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        PlacePawnAt(move);
-                        _aiIsThinking = false;
-                    }));
-                });
-            }
-            else if (BlackTurn && _minMaxBlackPlayer != null)
+            switch (_usedAlgorithm)
             {
-                _aiIsThinking = true;
-                var t = Task.Factory.StartNew(() => _minMaxBlackPlayer.FindNextMove(_board));
-                t.ContinueWith(taskResult =>
-                {
-                    var move = taskResult.Result;
+                case AlgorithmsEnum.MinMax:
 
-                    Dispatcher.BeginInvoke(new Action(() =>
+                    if (!BlackTurn && _minMaxWhitePlayer != null)
                     {
-                        PlacePawnAt(move);
-                        _aiIsThinking = false;
-                    }));
-                });
+                        _aiIsThinking = true;
+                        var move = await Task.Factory.StartNew(() => _minMaxWhitePlayer.FindNextMove(_board));
+
+                        await Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            PlacePawnAt(move);
+                            _aiIsThinking = false;
+                        }));
+                    }
+                    else if (BlackTurn && _minMaxBlackPlayer != null)
+                    {
+                        _aiIsThinking = true;
+                        var move = await Task.Factory.StartNew(() => _minMaxBlackPlayer.FindNextMove(_board));
+
+                        await Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            PlacePawnAt(move);
+                            _aiIsThinking = false;
+                        }));
+                    }
+
+                    break;
+                case AlgorithmsEnum.AlfaBeta:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
         #region helpers
+
         private void UpdatePossibleMoves()
         {
             _possibleMoves.Clear();
 
-            var currentPlayerTiles = new List<Tile>(BoardSize * BoardSize);
+            var currentPlayerTiles = new List<Tile>(BoardSize*BoardSize);
 
             for (int i = 0; i < _board.Length; i++)
             {
@@ -538,6 +548,7 @@ namespace Reversi
                 }
             }
         }
+
         private void FlipPawns(Tile tile)
         {
             var currentPlayerColor = BlackTurn ? Enums.TileStateEnum.Black : Enums.TileStateEnum.White;
@@ -712,10 +723,13 @@ namespace Reversi
                     }
             }
         }
+
         #endregion
 
         #region  UI
+
         private int invalidMoveSemaphore = 0;
+
         private async void ShowInvalidMoveLabel(string message = "")
         {
             InvalidMoveLabel.Visibility = Visibility.Visible;
@@ -732,13 +746,16 @@ namespace Reversi
                 InvalidMoveLabel.Visibility = Visibility.Hidden;
             }
         }
+
         private void ShowMoveHelpers()
         {
+            HideMoveHelpers();
             foreach (var tile in _possibleMoves)
             {
                 tile.Background = Brushes.LightPink;
             }
         }
+
         private void HideMoveHelpers()
         {
             foreach (var row in _board)
@@ -749,22 +766,59 @@ namespace Reversi
                 }
             }
         }
+
         #endregion
 
         private void ChangedAIStrategy(object sender, SelectionChangedEventArgs e)
         {
             try
             {
-                var aiStrategyText = ((ComboBox)sender).Text;
+                var aiStrategyText = ((ComboBox) sender).Text;
                 if (string.IsNullOrEmpty(aiStrategyText))
                     _aiStrategy = AIStrategies.MostCapturedTiles;
                 else
-                    _aiStrategy = (AIStrategies)Enum.Parse(typeof(AIStrategies), aiStrategyText);
+                    _aiStrategy = (AIStrategies) Enum.Parse(typeof(AIStrategies), aiStrategyText);
             }
             catch (Exception)
             {
                 _aiStrategy = AIStrategies.MostCapturedTiles;
             }
+        }
+
+        private void ChangedUsedAlgorithm(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                var usedAlgorithmText = ((ComboBox) sender).Text;
+                if (string.IsNullOrEmpty(usedAlgorithmText))
+                    _usedAlgorithm = AlgorithmsEnum.MinMax;
+                else
+                    _usedAlgorithm = (AlgorithmsEnum) Enum.Parse(typeof(AlgorithmsEnum), usedAlgorithmText);
+            }
+            catch (Exception)
+            {
+                _usedAlgorithm = AlgorithmsEnum.MinMax;
+            }
+        }
+
+        private void StartGameButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (_aiIsThinking) return;
+
+            _useAi = true;
+            AskAI();
+        }
+
+        private void StopGameButtonClick(object sender, RoutedEventArgs e)
+        {
+            _useAi = false;
+        }
+
+        private void ResetGameButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (_aiIsThinking) return;
+
+            RestartGame();
         }
     }
 }

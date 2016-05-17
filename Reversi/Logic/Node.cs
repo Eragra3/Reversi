@@ -8,15 +8,12 @@ namespace Reversi.Logic
 {
     public class Node<T>
     {
-        public Node<T> Parent;
-
         public Node<T>[] Children;
 
         public T Value;
 
-        public Node(Node<T> parent, T value)
+        public Node(T value)
         {
-            Parent = parent;
             Value = value;
         }
     }
