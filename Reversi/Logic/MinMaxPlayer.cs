@@ -35,7 +35,7 @@ namespace Reversi.Logic
             _currentStrategy = strategy;
         }
 
-        public override PawnLightModel? FindNextMove(Tile[][] gameState)
+        public override PawnLightModel FindNextMove(Tile[][] gameState)
         {
             for (var i = 0; i < _currentBoardState.Length; i++)
             {

@@ -30,7 +30,7 @@
                     <ComboBoxItem Content="MinMax" IsSelected="True"></ComboBoxItem>
                     <ComboBoxItem Content="AlfaBeta"></ComboBoxItem>
                 </ComboBox>
-                
+
                 <Label Name="WinnerLabel"  Background="Green" Foreground="Black" FontSize="24"></Label>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -45,8 +45,8 @@
                     <Label Grid.Column="0" HorizontalAlignment="Center">Black</Label>
                     <Label Grid.Column="1" HorizontalAlignment="Center">White</Label>
 
-                    <Label Grid.Row="1" Grid.Column="0"  Name="BlackPointsLabel" HorizontalAlignment="Center" Visibility="Hidden">1</Label>
-                    <Label Grid.Row="1"  Grid.Column="1"  Name="WhitePointsLabel" HorizontalAlignment="Center" Visibility="Hidden">2</Label>
+                    <Label Grid.Row="1" Grid.Column="0" Name="BlackPointsLabel" HorizontalAlignment="Center" Visibility="Hidden">1</Label>
+                    <Label Grid.Row="1" Grid.Column="1" Name="WhitePointsLabel" HorizontalAlignment="Center" Visibility="Hidden">2</Label>
                 </Grid>
                 <Button Height="40" Click="StartGameButtonClick">Start</Button>
                 <Button Height="40" Click="StopGameButtonClick">Stop</Button>

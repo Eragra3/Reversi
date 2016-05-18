@@ -8,7 +8,7 @@ using Reversi.Enums;
 
 namespace Reversi.Logic
 {
-    public struct PawnLightModel : IEquatable<PawnLightModel>
+    public class PawnLightModel : IEquatable<PawnLightModel>
     {
         public int X;
         public int Y;

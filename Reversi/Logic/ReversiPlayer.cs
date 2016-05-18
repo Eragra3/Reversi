@@ -10,7 +10,7 @@ namespace Reversi.Logic
 {
     public abstract class ReversiPlayer
     {
-        public abstract PawnLightModel? FindNextMove(Tile[][] gameState);
+        public abstract PawnLightModel FindNextMove(Tile[][] gameState);
 
         protected TileStateEnum[][] DeepCloneGameState(TileStateEnum[][] gameState)
         {
