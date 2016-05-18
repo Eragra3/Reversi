@@ -16,6 +16,36 @@ namespace Reversi.Logic
         {
             Value = value;
         }
+
+        public void Print()
+        {
+            Console.WriteLine("Printing tree");
+
+            var sb = new StringBuilder();
+
+            foreach (var child in Children)
+            {
+                sb.AppendLine(child.ToString(1));
+            }
+
+            Console.WriteLine(sb.ToString());
+        }
+
+        public string ToString(int depth)
+        {
+            var sb = new StringBuilder();
+
+            var tab = new string('\t', depth);
+
+            if (Children == null) return $"{tab}{Value}";
+
+            foreach (var child in Children)
+            {
+                sb.AppendLine(child.ToString(depth + 1));
+            }
+
+            return $"{tab}{Value}\n{sb}";
+        }
     }
 
 }

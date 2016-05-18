@@ -286,7 +286,7 @@ namespace Reversi
         private async void AskAI()
         {
             if (!_useAi || _aiIsThinking) return;
-            Debug.WriteLine(BlackTurn ? "Czorny" : "White");
+
             var sw = new Stopwatch();
             sw.Start();
 

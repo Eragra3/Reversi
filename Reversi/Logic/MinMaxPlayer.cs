@@ -50,7 +50,7 @@ namespace Reversi.Logic
             var root = new Node<PotentialGameState>(null);
 
             MakeGameSubTree(root, _searchDepth, _playerColor, gameStateClone);
-
+            //root.Print();
             PotentialGameState bestPgs = null;
             var nicestNiceness = double.NegativeInfinity;
             foreach (var child in root.Children)

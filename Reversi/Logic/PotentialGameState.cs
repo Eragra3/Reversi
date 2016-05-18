@@ -38,5 +38,10 @@ namespace Reversi.Logic
                     throw new ArgumentOutOfRangeException(nameof(strategy), strategy, null);
             }
         }
+
+        public override string ToString()
+        {
+            return MoveMade.ToString();
+        }
     }
 }
