@@ -75,6 +75,7 @@
     <Compile Include="Enums\AlgorithmsEnum.cs" />
     <Compile Include="Enums\TileStateEnum.cs" />
     <Compile Include="Logic\AlfaBetaPlayer.cs" />
+    <Compile Include="Logic\Pair.cs" />
     <Compile Include="Logic\PawnLightModel.cs" />
     <Compile Include="Logic\MinMaxPlayer.cs" />
     <Compile Include="Logic\Node.cs" />

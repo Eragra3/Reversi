@@ -8,6 +8,7 @@ namespace Reversi.Enums
 {
     public enum AIStrategies
     {
-        MostCapturedTiles
+        MostCapturedTiles,
+        Mobility
     }
 }

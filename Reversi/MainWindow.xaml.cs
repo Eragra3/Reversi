@@ -60,7 +60,9 @@ namespace Reversi
 
         private HashSet<Tile> _possibleMoves;
 
-        private AIStrategies _aiStrategy;
+        private AIStrategies _whiteAiStrategy;
+        private AIStrategies _blackAiStrategy;
+
         private AlgorithmsEnum _usedAlgorithm;
 
         private MinMaxPlayer _minMaxWhitePlayer;
@@ -91,12 +93,13 @@ namespace Reversi
 
             RestartGame();
 
+            var test = Configuration.TileWeights;
 
-            _minMaxWhitePlayer = new MinMaxPlayer(BoardSize, TileStateEnum.White, _aiStrategy, 4);
-            _minMaxBlackPlayer = new MinMaxPlayer(BoardSize, TileStateEnum.Black, _aiStrategy, 4);
+            _minMaxWhitePlayer = new MinMaxPlayer(BoardSize, TileStateEnum.White, _whiteAiStrategy, 4);
+            _minMaxBlackPlayer = new MinMaxPlayer(BoardSize, TileStateEnum.Black, _whiteAiStrategy, 4);
 
-            _alfaBetaWhitePlayer = new AlfaBetaPlayer(BoardSize, TileStateEnum.White, _aiStrategy, 4);
-            _alfaBetaBlackPlayer = new AlfaBetaPlayer(BoardSize, TileStateEnum.Black, _aiStrategy, 4);
+            _alfaBetaWhitePlayer = new AlfaBetaPlayer(BoardSize, TileStateEnum.White, _whiteAiStrategy, 4);
+            _alfaBetaBlackPlayer = new AlfaBetaPlayer(BoardSize, TileStateEnum.Black, _whiteAiStrategy, 4);
             //for (int i = 0; i < 20; i++)
             //{
             //    var e = _possibleMoves.GetEnumerator();
@@ -827,20 +830,46 @@ namespace Reversi
 
         #endregion
 
-        private void ChangedAIStrategy(object sender, SelectionChangedEventArgs e)
+        private void ChangedWhiteAIStrategy(object sender, SelectionChangedEventArgs e)
         {
             try
             {
                 var aiStrategyText = ((ComboBoxItem)e.AddedItems[0]).Content.ToString();
                 if (string.IsNullOrEmpty(aiStrategyText))
-                    _aiStrategy = AIStrategies.MostCapturedTiles;
+                    _whiteAiStrategy = AIStrategies.MostCapturedTiles;
                 else
-                    _aiStrategy = (AIStrategies)Enum.Parse(typeof(AIStrategies), aiStrategyText);
+                    _whiteAiStrategy = (AIStrategies)Enum.Parse(typeof(AIStrategies), aiStrategyText);
             }
             catch (Exception)
             {
-                _aiStrategy = AIStrategies.MostCapturedTiles;
+                _whiteAiStrategy = AIStrategies.MostCapturedTiles;
             }
+
+            if (_minMaxWhitePlayer == null || _alfaBetaWhitePlayer == null) return;
+
+            _minMaxWhitePlayer.CurrentStrategy = _whiteAiStrategy;
+            _alfaBetaWhitePlayer.CurrentStrategy = _whiteAiStrategy;
+        }
+
+        private void ChangedBlackAIStrategy(object sender, SelectionChangedEventArgs e)
+        {
+            try
+            {
+                var aiStrategyText = ((ComboBoxItem)e.AddedItems[0]).Content.ToString();
+                if (string.IsNullOrEmpty(aiStrategyText))
+                    _blackAiStrategy = AIStrategies.MostCapturedTiles;
+                else
+                    _blackAiStrategy = (AIStrategies)Enum.Parse(typeof(AIStrategies), aiStrategyText);
+            }
+            catch (Exception)
+            {
+                _blackAiStrategy = AIStrategies.MostCapturedTiles;
+            }
+
+            if (_minMaxBlackPlayer == null || _alfaBetaBlackPlayer == null) return;
+
+            _minMaxBlackPlayer.CurrentStrategy = _blackAiStrategy;
+            _alfaBetaBlackPlayer.CurrentStrategy = _blackAiStrategy;
         }
 
         private void ChangedUsedAlgorithm(object sender, SelectionChangedEventArgs e)
@@ -864,7 +893,7 @@ namespace Reversi
             if (_aiIsThinking) return;
 
             _logsWriter.WriteLine($"Starting algorithm");
-            _logsWriter.WriteLine($"{_usedAlgorithm};{_aiStrategy}");
+            _logsWriter.WriteLine($"{_usedAlgorithm};{_whiteAiStrategy}");
 
             gameStopwatch.Restart();
             _stepsCount = 0;

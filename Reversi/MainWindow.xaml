@@ -23,8 +23,15 @@
                 <Label Name="PlayerTurnIndicatorLabel" Background="Black" Foreground="White" FontSize="24"
                        VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
                        BorderBrush="Black" BorderThickness="1">BLACK</Label>
-                <ComboBox SelectionChanged="ChangedAIStrategy">
+                <Label>White strategy</Label>
+                <ComboBox SelectionChanged="ChangedWhiteAIStrategy">
                     <ComboBoxItem Content="MostCapturedTiles" IsSelected="True"></ComboBoxItem>
+                    <ComboBoxItem Content="Mobility"></ComboBoxItem>
+                </ComboBox>
+                <Label>Black strategy</Label>
+                <ComboBox SelectionChanged="ChangedBlackAIStrategy">
+                    <ComboBoxItem Content="MostCapturedTiles" IsSelected="True"></ComboBoxItem>
+                    <ComboBoxItem Content="Mobility"></ComboBoxItem>
                 </ComboBox>
                 <ComboBox SelectionChanged="ChangedUsedAlgorithm">
                     <ComboBoxItem Content="MinMax" IsSelected="True"></ComboBoxItem>

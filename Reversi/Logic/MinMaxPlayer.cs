@@ -14,14 +14,12 @@ namespace Reversi.Logic
 
         private TileStateEnum _playerColor;
 
-        private AIStrategies _currentStrategy;
-
         private int _searchDepth;
 
 
-        private int visitedNodesCount;
+        public int VisitedNodesCount;
 
-        public MinMaxPlayer(int boardSize, Enums.TileStateEnum playerColor, AIStrategies strategy, int searchDepth = 4)
+        public MinMaxPlayer(int boardSize, TileStateEnum playerColor, AIStrategies strategy, int searchDepth = 4)
         {
             _currentBoardState = new TileStateEnum[boardSize][];
             for (var i = 0; i < _currentBoardState.Length; i++)
@@ -35,12 +33,12 @@ namespace Reversi.Logic
 
             _playerColor = playerColor;
             _searchDepth = searchDepth;
-            _currentStrategy = strategy;
+            CurrentStrategy = strategy;
         }
 
         public override PawnLightModel FindNextMove(Tile[][] gameState)
         {
-            visitedNodesCount = 0;
+            VisitedNodesCount = 0;
 
             for (var i = 0; i < _currentBoardState.Length; i++)
             {
@@ -60,7 +58,7 @@ namespace Reversi.Logic
             var nicestNiceness = double.NegativeInfinity;
             foreach (var child in root.Children)
             {
-                var niceness = GetSubTreeNiceness(child, true, _currentStrategy);
+                var niceness = GetSubTreeNiceness(child, true, CurrentStrategy);
 
                 if (!(niceness > nicestNiceness)) continue;
                 nicestNiceness = niceness;
@@ -110,28 +108,29 @@ namespace Reversi.Logic
         /// <summary>
         /// Recursive
         /// </summary>
-        /// <param name="parent">Parent node</param>
+        /// <param name="node">Parent node</param>
         /// <param name="remainingDepth">Nodes to be created beneath this node</param>
         /// <param name="currentPlayerColor"></param>
         /// <param name="gameState"></param>
         /// <returns></returns>
-        private void MakeGameSubTree(Node<PotentialGameState> parent, int remainingDepth, TileStateEnum currentPlayerColor, TileStateEnum[][] gameState)
+        private void MakeGameSubTree(Node<PotentialGameState> node, int remainingDepth, TileStateEnum currentPlayerColor, TileStateEnum[][] gameState)
         {
-            var possiblePawnPlacements = ReversiHelpers.GetPossiblePawnPlacements(gameState, currentPlayerColor);
+            VisitedNodesCount++;
 
+            var possiblePawnPlacements = ReversiHelpers.GetPossiblePawnPlacements(gameState, currentPlayerColor);
 
             if (!possiblePawnPlacements.Any())
             {
-                parent.Children = new Node<PotentialGameState>[0];
+                node.Children = new Node<PotentialGameState>[0];
                 return;
             }
 
-            parent.Children = new Node<PotentialGameState>[possiblePawnPlacements.Length];
+            node.Children = new Node<PotentialGameState>[possiblePawnPlacements.Length];
 
             remainingDepth--;
             var opponentPlayerColor = currentPlayerColor == TileStateEnum.Black ? TileStateEnum.White : TileStateEnum.Black;
 
-            for (var i = 0; i < parent.Children.Length; i++)
+            for (var i = 0; i < node.Children.Length; i++)
             {
                 var pawn = possiblePawnPlacements[i];
                 pawn.State = currentPlayerColor;
@@ -139,13 +138,16 @@ namespace Reversi.Logic
                 var gameStateClone = DeepCloneGameState(gameState);
                 var capturedTiles = ReversiHelpers.PlacePawn(gameStateClone, pawn.State, pawn.X, pawn.Y);
 
+                var ppp = ReversiHelpers.GetPossiblePawnPlacements(gameStateClone, opponentPlayerColor);
+
                 var pgs = new PotentialGameState(pawn)
                 {
-                    CapturedTiles = capturedTiles
+                    CapturedTiles = capturedTiles,
+                    PossibleMoves = ppp.Length
                 };
 
                 var child = new Node<PotentialGameState>(pgs);
-                parent.Children[i] = child;
+                node.Children[i] = child;
 
                 if (remainingDepth >= 0)
                 {

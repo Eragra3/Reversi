@@ -14,6 +14,8 @@ namespace Reversi.Logic
 
         public int CapturedTiles;
 
+        public int PossibleMoves;
+
         /// <summary>
         /// Creates new game state and remembers which pawn was placed this turn
         /// gameState should have pawn already placed and game state should be valid
@@ -34,6 +36,8 @@ namespace Reversi.Logic
             {
                 case AIStrategies.MostCapturedTiles:
                     return CapturedTiles;
+                case AIStrategies.Mobility:
+                    return PossibleMoves;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(strategy), strategy, null);
             }

@@ -14,8 +14,6 @@ namespace Reversi.Logic
 
         private TileStateEnum _playerColor;
 
-        private AIStrategies _currentStrategy;
-
         private int _searchDepth;
 
         public AlfaBetaPlayer(int boardSize, TileStateEnum playerColor, AIStrategies strategy, int searchDepth = 4)
@@ -32,7 +30,7 @@ namespace Reversi.Logic
 
             _playerColor = playerColor;
             _searchDepth = searchDepth;
-            _currentStrategy = strategy;
+            CurrentStrategy = strategy;
         }
 
         public override PawnLightModel FindNextMove(Tile[][] gameState)
@@ -70,22 +68,23 @@ namespace Reversi.Logic
 
             var capturedTiles = ReversiHelpers.PlacePawn(gameStateClone, move.State, move.X, move.Y);
 
+            var nextMovePlayer = move.State == TileStateEnum.Black ? TileStateEnum.White : TileStateEnum.Black;
+            var possiblePawnPlacements = ReversiHelpers.GetPossiblePawnPlacements(gameStateClone, nextMovePlayer);
+
             var pgs = new PotentialGameState(move)
             {
-                CapturedTiles = capturedTiles
+                CapturedTiles = capturedTiles,
+                PossibleMoves = possiblePawnPlacements.Length
             };
 
             if (depth == 0)
             {
-                return pgs.GetNiceness(_currentStrategy);
+                return pgs.GetNiceness(CurrentStrategy);
             }
-
-            var nextMovePlayer = move.State == TileStateEnum.Black ? TileStateEnum.White : TileStateEnum.Black;
-            var possiblePawnPlacements = ReversiHelpers.GetPossiblePawnPlacements(gameStateClone, nextMovePlayer);
 
             if (possiblePawnPlacements.Length == 0)
             {
-                return pgs.GetNiceness(_currentStrategy);
+                return pgs.GetNiceness(CurrentStrategy);
             }
 
             double bestMove;
