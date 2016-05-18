@@ -18,6 +18,9 @@ namespace Reversi.Logic
 
         private int _searchDepth;
 
+
+        private int visitedNodesCount;
+
         public MinMaxPlayer(int boardSize, Enums.TileStateEnum playerColor, AIStrategies strategy, int searchDepth = 4)
         {
             _currentBoardState = new TileStateEnum[boardSize][];
@@ -37,6 +40,8 @@ namespace Reversi.Logic
 
         public override PawnLightModel FindNextMove(Tile[][] gameState)
         {
+            visitedNodesCount = 0;
+
             for (var i = 0; i < _currentBoardState.Length; i++)
             {
                 for (var j = 0; j < _currentBoardState[i].Length; j++)
