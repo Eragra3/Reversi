@@ -44,4 +44,22 @@ namespace Reversi.Logic
             return $"X:{X},Y:{Y},{State}";
         }
     }
+
+    public class PawnLightModelComparer : IComparer<PawnLightModel>
+    {
+        private readonly int[][] _weightsTable;
+
+        public PawnLightModelComparer(int[][] weightsTable)
+        {
+            _weightsTable = weightsTable;
+        }
+
+        public int Compare(PawnLightModel x, PawnLightModel y)
+        {
+            var xWeight = _weightsTable[x.X][x.Y];
+            var yWeight = _weightsTable[y.X][y.Y];
+
+            return xWeight - yWeight;
+        }
+    }
 }

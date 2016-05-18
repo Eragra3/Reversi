@@ -16,6 +16,8 @@ namespace Reversi.Logic
 
         private int _searchDepth;
 
+        private int _visitedNodesCount;
+
         public AlfaBetaPlayer(int boardSize, TileStateEnum playerColor, AIStrategies strategy, int searchDepth = 4)
         {
             _currentBoardState = new TileStateEnum[boardSize][];
@@ -33,8 +35,10 @@ namespace Reversi.Logic
             CurrentStrategy = strategy;
         }
 
-        public override PawnLightModel FindNextMove(Tile[][] gameState)
+        public override AiPlayerResult FindNextMove(Tile[][] gameState)
         {
+            _visitedNodesCount = 0;
+
             for (var i = 0; i < _currentBoardState.Length; i++)
             {
                 for (var j = 0; j < _currentBoardState[i].Length; j++)
@@ -58,8 +62,13 @@ namespace Reversi.Logic
                 bestMove = possibleMove;
             }
 
+            var result = new AiPlayerResult()
+            {
+                Move = bestMove,
+                SearchedNodes = _visitedNodesCount
+            };
 
-            return bestMove;
+            return result;
         }
 
         private double AlfaBeta(TileStateEnum[][] parentGameState, PawnLightModel move, double alfa, double beta, int depth, bool maximizingPlayer)
@@ -87,12 +96,17 @@ namespace Reversi.Logic
                 return pgs.GetNiceness(CurrentStrategy);
             }
 
+            //order nodes
+            //ReversiHelpers.OrderTreeTraversal(possiblePawnPlacements);
+
             double bestMove;
             if (maximizingPlayer)
             {
                 bestMove = double.NegativeInfinity;
                 foreach (var possibleMove in possiblePawnPlacements)
                 {
+                    _visitedNodesCount++;
+
                     var moveResult = AlfaBeta(gameStateClone, possibleMove, alfa, beta, depth - 1, false);
                     if (moveResult > bestMove)
                     {
@@ -111,6 +125,8 @@ namespace Reversi.Logic
                 bestMove = double.PositiveInfinity;
                 foreach (var possibleMove in possiblePawnPlacements)
                 {
+                    _visitedNodesCount++;
+
                     var moveResult = AlfaBeta(gameStateClone, possibleMove, alfa, beta, depth - 1, true);
                     if (moveResult < bestMove)
                     {

@@ -12,7 +12,7 @@ namespace Reversi.Logic
     {
         public AIStrategies CurrentStrategy { get; set; }
 
-        public abstract PawnLightModel FindNextMove(Tile[][] gameState);
+        public abstract AiPlayerResult FindNextMove(Tile[][] gameState);
 
         protected TileStateEnum[][] DeepCloneGameState(TileStateEnum[][] gameState)
         {

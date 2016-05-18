@@ -74,6 +74,7 @@
     <Compile Include="Enums\AIStrategies.cs" />
     <Compile Include="Enums\AlgorithmsEnum.cs" />
     <Compile Include="Enums\TileStateEnum.cs" />
+    <Compile Include="Logic\AiPlayerResult.cs" />
     <Compile Include="Logic\AlfaBetaPlayer.cs" />
     <Compile Include="Logic\Pair.cs" />
     <Compile Include="Logic\PawnLightModel.cs" />

@@ -96,10 +96,10 @@ namespace Reversi
             var test = Configuration.TileWeights;
 
             _minMaxWhitePlayer = new MinMaxPlayer(BoardSize, TileStateEnum.White, _whiteAiStrategy, 4);
-            _minMaxBlackPlayer = new MinMaxPlayer(BoardSize, TileStateEnum.Black, _whiteAiStrategy, 4);
+            _minMaxBlackPlayer = new MinMaxPlayer(BoardSize, TileStateEnum.Black, _blackAiStrategy, 4);
 
             _alfaBetaWhitePlayer = new AlfaBetaPlayer(BoardSize, TileStateEnum.White, _whiteAiStrategy, 4);
-            _alfaBetaBlackPlayer = new AlfaBetaPlayer(BoardSize, TileStateEnum.Black, _whiteAiStrategy, 4);
+            _alfaBetaBlackPlayer = new AlfaBetaPlayer(BoardSize, TileStateEnum.Black, _blackAiStrategy, 5);
             //for (int i = 0; i < 20; i++)
             //{
             //    var e = _possibleMoves.GetEnumerator();
@@ -168,6 +168,7 @@ namespace Reversi
         {
             _blackPoints = 0;
             _whitePoints = 0;
+            _gameHasEnded = false;
             WinnerLabel.Visibility = Visibility.Hidden;
             BlackTurn = true;
 
@@ -198,6 +199,8 @@ namespace Reversi
 
             _gameHasEnded = true;
             FindWinner();
+
+            _logsWriter.WriteLine($"White points:{WhitePointsLabel.Content};Black points:{BlackPointsLabel.Content}");
         }
 
         private void FindWinner()
@@ -305,27 +308,27 @@ namespace Reversi
                     if (!BlackTurn && _minMaxWhitePlayer != null)
                     {
                         _aiIsThinking = true;
-                        var move = await Task.Factory.StartNew(() => _minMaxWhitePlayer.FindNextMove(_board));
+                        var result = await Task.Factory.StartNew(() => _minMaxWhitePlayer.FindNextMove(_board));
 
-                        _logsWriter.WriteLine($"{sw.ElapsedTicks};{_possibleMoves.Count}");
+                        _logsWriter.WriteLine($"{sw.ElapsedTicks};{_possibleMoves.Count};{result.SearchedNodes}");
 
                         await Dispatcher.BeginInvoke(new Action(() =>
                         {
                             _aiIsThinking = false;
-                            PlacePawnAt(move);
+                            PlacePawnAt(result.Move);
                         }));
                     }
                     else if (BlackTurn && _minMaxBlackPlayer != null)
                     {
                         _aiIsThinking = true;
-                        var move = await Task.Factory.StartNew(() => _minMaxBlackPlayer.FindNextMove(_board));
+                        var result = await Task.Factory.StartNew(() => _minMaxBlackPlayer.FindNextMove(_board));
 
-                        _logsWriter.WriteLine($"{sw.ElapsedTicks};{_possibleMoves.Count}");
+                        _logsWriter.WriteLine($"{sw.ElapsedTicks};{_possibleMoves.Count};{result.SearchedNodes}");
 
                         await Dispatcher.BeginInvoke(new Action(() =>
                         {
                             _aiIsThinking = false;
-                            PlacePawnAt(move);
+                            PlacePawnAt(result.Move);
                         }));
                     }
 
@@ -335,27 +338,27 @@ namespace Reversi
                     if (!BlackTurn && _alfaBetaWhitePlayer != null)
                     {
                         _aiIsThinking = true;
-                        var move = await Task.Factory.StartNew(() => _alfaBetaWhitePlayer.FindNextMove(_board));
+                        var result = await Task.Factory.StartNew(() => _alfaBetaWhitePlayer.FindNextMove(_board));
 
-                        _logsWriter.WriteLine($"{sw.ElapsedMilliseconds};{_possibleMoves.Count}");
+                        _logsWriter.WriteLine($"{sw.ElapsedTicks};{_possibleMoves.Count};{result.SearchedNodes}");
 
                         await Dispatcher.BeginInvoke(new Action(() =>
                         {
                             _aiIsThinking = false;
-                            PlacePawnAt(move);
+                            PlacePawnAt(result.Move);
                         }));
                     }
                     else if (BlackTurn && _alfaBetaBlackPlayer != null)
                     {
                         _aiIsThinking = true;
-                        var move = await Task.Factory.StartNew(() => _alfaBetaBlackPlayer.FindNextMove(_board));
+                        var result = await Task.Factory.StartNew(() => _alfaBetaBlackPlayer.FindNextMove(_board));
 
-                        _logsWriter.WriteLine($"{sw.ElapsedMilliseconds};{_possibleMoves.Count}");
+                        _logsWriter.WriteLine($"{sw.ElapsedTicks};{_possibleMoves.Count};{result.SearchedNodes}");
 
                         await Dispatcher.BeginInvoke(new Action(() =>
                         {
                             _aiIsThinking = false;
-                            PlacePawnAt(move);
+                            PlacePawnAt(result.Move);
                         }));
                     }
 
@@ -890,10 +893,11 @@ namespace Reversi
 
         private void StartGameButtonClick(object sender, RoutedEventArgs e)
         {
-            if (_aiIsThinking) return;
+            if (_aiIsThinking || _gameHasEnded) return;
 
             _logsWriter.WriteLine($"Starting algorithm");
-            _logsWriter.WriteLine($"{_usedAlgorithm};{_whiteAiStrategy}");
+            _logsWriter.WriteLine($"{_usedAlgorithm};white:{_whiteAiStrategy};black:{_blackAiStrategy}");
+            _logsWriter.WriteLine($"Ai thinking time in ticks;Possible moves;Searched nodes count");
 
             gameStopwatch.Restart();
             _stepsCount = 0;

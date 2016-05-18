@@ -9,6 +9,7 @@ namespace Reversi.Logic
 {
     public static class ReversiHelpers
     {
+        private static IComparer<PawnLightModel> comparer = new PawnLightModelComparer(Configuration.TileWeights);
         //[ThreadStatic]
         //private static List<PawnLightModel> __possibleMovesCache;
 
@@ -327,6 +328,12 @@ namespace Reversi.Logic
                     }
                 }
             }
+
+            foreach (var move in possibleMoves)
+            {
+                move.State = playerColor;
+            }
+
             return possibleMoves.ToArray();
         }
 
@@ -606,6 +613,11 @@ namespace Reversi.Logic
             }
 
             return capturedPawns;
+        }
+
+        public static void OrderTreeTraversal(PawnLightModel[] possibleMoves)
+        {
+            Array.Sort(possibleMoves, comparer);
         }
     }
 }
